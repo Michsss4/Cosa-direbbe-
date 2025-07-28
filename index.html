@@ -155,6 +155,7 @@
   </footer>
 
 <script>
+  // Domande normali e avanzate
   const normalPrompts = [
     "Cosa direbbe {nome} se trovasse 100€ per terra?",
     "Cosa direbbe {nome} durante un litigio?",
@@ -181,6 +182,7 @@
 
   const allPrompts = normalPrompts.concat(hardPrompts);
 
+  // Variabili di stato
   let players = [];
   let scores = {};
   let currentName = '';
@@ -189,6 +191,7 @@
   const maxQuestions = 10;
   let nameVisible = false;
 
+  // Elementi DOM
   const playersInput = document.getElementById('playersInput');
   const startBtn = document.getElementById('startBtn');
   const gameArea = document.getElementById('gameArea');
@@ -202,14 +205,11 @@
   const finalMessageDiv = document.getElementById('finalMessage');
   const resetBtn = document.getElementById('resetBtn');
 
-  // Suoni semplici (puoi sostituire con i tuoi file o disattivare)
-  const soundNewQuestion = new Audio("https://actions.google.com/sounds/v1/cartoon/clang_and_wobble.ogg");
-  const soundVote = new Audio("https://actions.google.com/sounds/v1/cartoon/boing.ogg");
-
   function randomChoice(arr) {
     return arr[Math.floor(Math.random() * arr.length)];
   }
 
+  // Inizia il gioco
   function startGame() {
     const input = playersInput.value;
     players = input.split(',').map(p => p.trim()).filter(p => p.length > 0);
@@ -233,6 +233,7 @@
     renderHistory();
   }
 
+  // Passa al turno successivo
   function nextTurn() {
     if(questionHistory.length >= maxQuestions) {
       endGame();
@@ -248,10 +249,9 @@
     questionDiv.textContent = currentQuestion;
     finalMessageDiv.textContent = '';
     resetBtn.style.display = 'none';
-
-    soundNewQuestion.play();
   }
 
+  // Mostra/nasconde il nome del giocatore attivo
   chosenNameDiv.addEventListener('click', () => {
     nameVisible = !nameVisible;
     if(nameVisible) {
@@ -261,8 +261,107 @@
     }
   });
 
-  newQuestionBtn.addEventListener('click', () => newQuestionBtn.addEventListener('click', () => {
-  nextTurn();       // Passa al turno/domanda successiva
-  renderVotes();    // Aggiorna la sezione voti (da implementare)
-  renderHistory();  // Aggiorna la cronologia domande
-});
+  // Nuova domanda
+  newQuestionBtn.addEventListener('click', () => {
+    nextTurn();
+  });
+
+  // Mostra i voti (bottone + gestione voto)
+  function renderVotes() {
+    votesContainer.innerHTML = '';
+    players.forEach(player => {
+      const div = document.createElement('div');
+      div.classList.add('playerVote');
+
+      const nameSpan = document.createElement('span');
+      nameSpan.classList.add('playerName');
+      nameSpan.textContent = player;
+      div.appendChild(nameSpan);
+
+      const voteButtonsDiv = document.createElement('div');
+      voteButtonsDiv.classList.add('voteButtons');
+
+      const upvoteBtn = document.createElement('button');
+      upvoteBtn.textContent = '+1';
+      upvoteBtn.title = `Dai un punto a ${player}`;
+      upvoteBtn.addEventListener('click', () => {
+        scores[player]++;
+        renderScores();
+      });
+
+      const downvoteBtn = document.createElement('button');
+      downvoteBtn.textContent = '-1';
+      downvoteBtn.title = `Togli un punto a ${player}`;
+      downvoteBtn.addEventListener('click', () => {
+        if(scores[player] > 0) {
+          scores[player]--;
+          renderScores();
+        }
+      });
+
+      voteButtonsDiv.appendChild(upvoteBtn);
+      voteButtonsDiv.appendChild(downvoteBtn);
+      div.appendChild(voteButtonsDiv);
+
+      votesContainer.appendChild(div);
+    });
+    renderScores();
+  }
+
+  // Aggiorna punteggi sullo schermo
+  function renderScores() {
+    let text = 'Punteggi:\n';
+    players.forEach(player => {
+      text += `${player}: ${scores[player]}\n`;
+    });
+    scoresDiv.textContent = text;
+  }
+
+  // Aggiorna cronologia domande
+  function renderHistory() {
+    let text = 'Ultime 5 domande:\n';
+    questionHistory.forEach(item => {
+      text += `- ${item.question}\n`;
+    });
+    historyDiv.textContent = text;
+  }
+
+  // Fine gioco
+  function endGame() {
+    newQuestionBtn.style.display = 'none';
+    votesSection.style.display = 'none';
+
+    // Trova massimo punteggio
+    let maxScore = Math.max(...Object.values(scores));
+    let winners = players.filter(p => scores[p] === maxScore);
+
+    if(maxScore === 0) {
+      finalMessageDiv.textContent = "Il gioco è finito, nessuno ha segnato punti!";
+    } else if(winners.length === 1) {
+      finalMessageDiv.textContent = `Vince ${winners[0]} con ${maxScore} punti! 🎉`;
+    } else {
+      finalMessageDiv.textContent = `Pareggio tra: ${winners.join(', ')} con ${maxScore} punti! 🎉`;
+    }
+    resetBtn.style.display = 'inline-block';
+  }
+
+  // Reset gioco
+  resetBtn.addEventListener('click', () => {
+    playersInput.style.display = 'block';
+    startBtn.style.display = 'inline-block';
+    gameArea.style.display = 'none';
+    newQuestionBtn.style.display = 'inline-block';
+    votesSection.style.display = 'block';
+    playersInput.value = '';
+    scoresDiv.textContent = '';
+    votesContainer.innerHTML = '';
+    questionDiv.textContent = '';
+    historyDiv.textContent = '';
+    finalMessageDiv.textContent = '';
+    resetBtn.style.display = 'none';
+  });
+
+  startBtn.addEventListener('click', startGame);
+</script>
+</body>
+</html>
