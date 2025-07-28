@@ -261,4 +261,8 @@
     }
   });
 
-  newQuestionBtn.addEventListener('click', () =>
+  newQuestionBtn.addEventListener('click', () => newQuestionBtn.addEventListener('click', () => {
+  nextTurn();       // Passa al turno/domanda successiva
+  renderVotes();    // Aggiorna la sezione voti (da implementare)
+  renderHistory();  // Aggiorna la cronologia domande
+});
