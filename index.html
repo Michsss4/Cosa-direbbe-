@@ -187,6 +187,7 @@
   let currentQuestion = '';
   let questionHistory = [];
   const maxQuestions = 10;
+  let nameVisible = false;
 
   const playersInput = document.getElementById('playersInput');
   const startBtn = document.getElementById('startBtn');
@@ -225,6 +226,8 @@
     finalMessageDiv.textContent = '';
     resetBtn.style.display = 'none';
     questionHistory = [];
+    nameVisible = false;
+    chosenNameDiv.textContent = "[Clicca per mostrare il nome]";
     nextTurn();
     renderVotes();
     renderHistory();
@@ -240,4 +243,22 @@
     questionHistory.unshift({name: currentName, question: currentQuestion});
     if(questionHistory.length > 5) questionHistory.pop();
 
-    chosenNameDiv.textContent = "[Clicca per mostrare
+    nameVisible = false;
+    chosenNameDiv.textContent = "[Clicca per mostrare il nome]";
+    questionDiv.textContent = currentQuestion;
+    finalMessageDiv.textContent = '';
+    resetBtn.style.display = 'none';
+
+    soundNewQuestion.play();
+  }
+
+  chosenNameDiv.addEventListener('click', () => {
+    nameVisible = !nameVisible;
+    if(nameVisible) {
+      chosenNameDiv.textContent = currentName;
+    } else {
+      chosenNameDiv.textContent = "[Clicca per mostrare il nome]";
+    }
+  });
+
+  newQuestionBtn.addEventListener('click', () =>
